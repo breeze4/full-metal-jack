@@ -9,6 +9,8 @@ export class Map {
     this.ctx = this.canvas.getContext('2d');
     this.canvas.width = width;
     this.canvas.height = height;
+    this.gridSize = 40; // Grid size in pixels
+    this.showGrid = false; // Toggle for grid visibility
   }
 
   // Method to add a unit to the map
@@ -33,10 +35,13 @@ export class Map {
 
   // Method to move a unit to a new position
   moveUnit(unit, newX, newY) {
-    if (this.isPositionValid(newX, newY, unit.radius, unit)) {
-      unit.x = newX;
-      unit.y = newY;
-      console.log(`Moved unit to (${newX}, ${newY})`);
+    const snappedX = this.snapToGrid(newX);
+    const snappedY = this.snapToGrid(newY);
+
+    if (this.isPositionValid(snappedX, snappedY, unit.radius, unit)) {
+      unit.x = snappedX;
+      unit.y = snappedY;
+      console.log(`Moved unit to (${snappedX}, ${snappedY})`);
     } else {
       console.error('Invalid move due to collision or out of bounds.');
     }
@@ -81,6 +86,10 @@ export class Map {
     for (let obstacle of this.obstacles) {
       this.drawCircle(obstacle.x, obstacle.y, obstacle.radius, 'red');
     }
+
+    if (this.showGrid) {
+      this.drawGrid();
+    }
   }
 
   // Utility method to draw a circle on the canvas
@@ -97,5 +106,30 @@ export class Map {
     this.ctx.font = '10px Arial'; // Set font size and family
     this.ctx.textAlign = 'center';
     this.ctx.fillText(text, x, y + 30); // Draw text slightly below the unit for better visibility
+  }
+
+  // Utility method to draw grid on the canvas
+  drawGrid() {
+    this.ctx.strokeStyle = 'gray';
+    this.ctx.lineWidth = 1;
+
+    for (let x = 0; x <= this.width; x += this.gridSize) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(x, 0);
+      this.ctx.lineTo(x, this.height);
+      this.ctx.stroke();
+    }
+
+    for (let y = 0; y <= this.height; y += this.gridSize) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, y);
+      this.ctx.lineTo(this.width, y);
+      this.ctx.stroke();
+    }
+  }
+
+  // Utility method to snap a position to the nearest grid cell
+  snapToGrid(position) {
+    return Math.round(position / this.gridSize) * this.gridSize;
   }
 }
