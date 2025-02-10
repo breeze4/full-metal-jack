@@ -42,12 +42,15 @@ export class Map {
   moveUnit(unit, newX, newY) {
     const cellX = Math.floor(newX / this.gridSize);
     const cellY = Math.floor(newY / this.gridSize);
-    console.log(`Moving unit to cell (${cellX}, ${cellY})`);
+    const centerX = (cellX * this.gridSize) + this.gridSize / 2;
+    const centerY = (cellY * this.gridSize) + this.gridSize / 2;
 
-    if (this.isPositionValid(newX, newY, unit.radius)) {
-      unit.x = newX;
-      unit.y = newY;
-      console.log(`Moved unit to (${newX}, ${newY})`);
+    console.log(`Moving unit to cell (${cellX}, ${cellY}) at position (${centerX}, ${centerY})`);
+
+    if (this.isPositionValid(centerX, centerY, unit.radius)) {
+      unit.x = centerX;
+      unit.y = centerY;
+      console.log(`Moved unit to (${centerX}, ${centerY})`);
     } else {
       console.error('Invalid move due to collision or out of bounds.');
     }
