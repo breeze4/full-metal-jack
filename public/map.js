@@ -141,11 +141,6 @@ export class Map {
     }
   }
 
-  // Utility method to snap a position to the center of the nearest grid cell
-  snapToGrid(position) {
-    return Math.round((position / this.gridSize) * this.gridSize + this.gridSize / 2);
-  }
-
   // New method to draw cell numbers on the canvas
   drawCellNumbers() {
     this.ctx.font = '10px Arial'; // Set font size and family
