@@ -11,6 +11,7 @@ export class Map {
     this.canvas.height = height;
     this.gridSize = 40; // Grid size in pixels
     this.showGrid = true; // Toggle for grid visibility
+    this.showCellNumbers = false; // New toggle for cell number debugging
   }
 
   // Method to add a unit to the map
@@ -94,6 +95,10 @@ export class Map {
     if (this.showGrid) {
       this.drawGrid();
     }
+
+    if (this.showCellNumbers) {
+      this.drawCellNumbers();
+    }
   }
 
   // Utility method to draw a circle on the canvas
@@ -135,5 +140,26 @@ export class Map {
   // Utility method to snap a position to the center of the nearest grid cell
   snapToGrid(position) {
     return Math.round((position / this.gridSize) * this.gridSize + this.gridSize / 2);
+  }
+
+  // New method to draw cell numbers on the canvas
+  drawCellNumbers() {
+    this.ctx.font = '10px Arial'; // Set font size and family
+    this.ctx.textAlign = 'center';
+    this.ctx.fillStyle = 'black';
+
+    for (let x = 0; x < this.width; x += this.gridSize) {
+      for (let y = 0; y < this.height; y += this.gridSize) {
+        const cellX = Math.round(x + this.gridSize / 2);
+        const cellY = Math.round(y + this.gridSize / 2);
+        const cellNumber = `${Math.floor(x / this.gridSize)},${Math.floor(y / this.gridSize)}`;
+        this.ctx.fillText(cellNumber, cellX, cellY);
+      }
+    }
+  }
+
+  // Method to toggle the display of cell numbers
+  toggleCellNumbers() {
+    this.showCellNumbers = !this.showCellNumbers;
   }
 }
