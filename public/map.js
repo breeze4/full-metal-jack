@@ -1,5 +1,3 @@
-
-
 // Define the Map Data Structure
 export class Map {
   constructor(width, height) {
@@ -7,6 +5,10 @@ export class Map {
     this.height = height;
     this.units = []; // List of units on the map
     this.obstacles = []; // List of obstacles on the map
+    this.canvas = document.getElementById('map');
+    this.ctx = this.canvas.getContext('2d');
+    this.canvas.width = width;
+    this.canvas.height = height;
   }
 
   // Method to add a unit to the map
@@ -68,32 +70,24 @@ export class Map {
     return distance < (r1 + r2);
   }
 
-  // Method to render the map in the browser
+  // Method to render the map on the canvas
   renderMap() {
-    const gridSize = 20; // Define how fine-grained the grid should be for visual representation
-    let mapRepresentation = '';
+    this.ctx.clearRect(0, 0, this.width, this.height);
 
-    for (let y = 0; y < this.height; y += gridSize) {
-      for (let x = 0; x < this.width; x += gridSize) {
-        let symbol = '.'; // Default empty space
-
-        for (let unit of this.units) {
-          if (Math.abs(unit.x - x) < unit.radius && Math.abs(unit.y - y) < unit.radius) {
-            symbol = 'U';
-            break;
-          }
-        }
-        for (let obstacle of this.obstacles) {
-          if (Math.abs(obstacle.x - x) < obstacle.radius && Math.abs(obstacle.y - y) < obstacle.radius) {
-            symbol = 'O';
-            break;
-          }
-        }
-        mapRepresentation += symbol + ' ';
-      }
-      mapRepresentation += '<br/>';
+    for (let unit of this.units) {
+      this.drawCircle(unit.x, unit.y, unit.radius, 'blue');
     }
+    for (let obstacle of this.obstacles) {
+      this.drawCircle(obstacle.x, obstacle.y, obstacle.radius, 'red');
+    }
+  }
 
-    document.getElementById('map').innerHTML = mapRepresentation;
+  // Utility method to draw a circle on the canvas
+  drawCircle(x, y, radius, color) {
+    this.ctx.beginPath();
+    this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+    this.ctx.fillStyle = color;
+    this.ctx.fill();
+    this.ctx.closePath();
   }
 }
