@@ -10,7 +10,7 @@ export class Map {
     this.canvas.width = width;
     this.canvas.height = height;
     this.gridSize = 40; // Grid size in pixels
-    this.showGrid = false; // Toggle for grid visibility
+    this.showGrid = true; // Toggle for grid visibility
   }
 
   // Method to add a unit to the map
