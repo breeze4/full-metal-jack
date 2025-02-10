@@ -15,9 +15,11 @@ export class Map {
 
   // Method to add a unit to the map
   addUnit(unit) {
-    if (this.isPositionValid(unit.x, unit.y, unit.radius)) {
-      this.units.push(unit);
-      console.log(`Added unit at (${unit.x}, ${unit.y}) with radius ${unit.radius}`);
+    const x = Math.round((unit.x / this.gridSize) * this.gridSize + this.gridSize / 2);
+    const y = Math.round((unit.y / this.gridSize) * this.gridSize + this.gridSize / 2);
+    if (this.isPositionValid(x, y, unit.radius)) {
+      this.units.push(new Unit(x, y, unit.radius, unit.label));
+      console.log(`Added unit at (${x}, ${y}) with radius ${unit.radius}`);
     } else {
       console.error('Invalid position to add unit due to collision or out of bounds.');
     }
@@ -25,9 +27,11 @@ export class Map {
 
   // Method to add an obstacle to the map
   addObstacle(obstacle) {
-    if (this.isPositionValid(obstacle.x, obstacle.y, obstacle.radius)) {
-      this.obstacles.push(obstacle);
-      console.log(`Added obstacle at (${obstacle.x}, ${obstacle.y}) with radius ${obstacle.radius}`);
+    const x = Math.round((obstacle.x / this.gridSize) * this.gridSize + this.gridSize / 2);
+    const y = Math.round((obstacle.y / this.gridSize) * this.gridSize + this.gridSize / 2);
+    if (this.isPositionValid(x, y, obstacle.radius)) {
+      this.obstacles.push(new Obstacle(x, y, 20)); // Set radius to half of the grid size
+      console.log(`Added obstacle at (${x}, ${y}) with radius ${obstacle.radius}`);
     } else {
       console.error('Invalid position to add obstacle due to collision or out of bounds.');
     }
@@ -84,7 +88,7 @@ export class Map {
       this.drawText(unit.label, unit.x, unit.y); // Draw the label on top of the unit
     }
     for (let obstacle of this.obstacles) {
-      this.drawCircle(obstacle.x, obstacle.y, obstacle.radius, 'red');
+      this.drawCircle(obstacle.x, obstacle.y, 20, 'red'); // Set radius to half of the grid size
     }
 
     if (this.showGrid) {
