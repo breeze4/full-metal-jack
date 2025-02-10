@@ -40,13 +40,14 @@ export class Map {
 
   // Method to move a unit to a new position
   moveUnit(unit, newX, newY) {
-    const snappedX = this.snapToGrid(newX);
-    const snappedY = this.snapToGrid(newY);
+    const cellX = Math.floor(newX / this.gridSize);
+    const cellY = Math.floor(newY / this.gridSize);
+    console.log(`Moving unit to cell (${cellX}, ${cellY})`);
 
-    if (this.isPositionValid(snappedX, snappedY, unit.radius, unit)) {
-      unit.x = snappedX;
-      unit.y = snappedY;
-      console.log(`Moved unit to (${snappedX}, ${snappedY})`);
+    if (this.isPositionValid(newX, newY, unit.radius)) {
+      unit.x = newX;
+      unit.y = newY;
+      console.log(`Moved unit to (${newX}, ${newY})`);
     } else {
       console.error('Invalid move due to collision or out of bounds.');
     }
