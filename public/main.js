@@ -33,13 +33,12 @@ document.addEventListener('DOMContentLoaded', () => {
   gameEngine.initializeGame();
 
   renderLoop();
-  // map.renderMap();
 });
 
 map.canvas.addEventListener('mousemove', (event) => {
   if (!moveMode || !selectedUnit) return;
 
-  const { x, y } = getCursorPosition();
+  const { x, y } = getCursorPosition(event);
   const movePositions = {
     startX: selectedUnit.x,
     startY: selectedUnit.y,
@@ -50,7 +49,7 @@ map.canvas.addEventListener('mousemove', (event) => {
 
 });
 
-function getCursorPosition() {
+function getCursorPosition(event) {
   const rect = map.canvas.getBoundingClientRect();
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
@@ -71,7 +70,7 @@ map.canvas.addEventListener('click', (event) => {
       if (Math.abs(unit.x - x) <= unit.radius && Math.abs(unit.y - y) <= unit.radius) {
         selectedUnit = unit;
         moveMode = true;
-        const { x, y } = getCursorPosition();
+        const { x, y } = getCursorPosition(event);
         const movePositions = {
           startX: selectedUnit.x,
           startY: selectedUnit.y,
@@ -87,7 +86,6 @@ map.canvas.addEventListener('click', (event) => {
     // Move the selected unit to the clicked position
     if (selectedUnit) {
       map.moveUnit(selectedUnit, x, y);
-      map.renderMap();
       selectedUnit = null;
       moveMode = false;
       map.endUnitMove();
