@@ -51,5 +51,10 @@ map.canvas.addEventListener('click', (event) => {
       selectedUnit = null;
       moveMode = false;
     }
+
+    // Log cell coordinates when clicking in move mode
+    const cellX = Math.floor(x / map.gridSize);
+    const cellY = Math.floor(y / map.gridSize);
+    console.log(`Clicked on cell (${cellX}, ${cellY})`);
   }
 });
