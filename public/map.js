@@ -12,6 +12,8 @@ export class Map {
     this.gridSize = 40; // Grid size in pixels
     this.showGrid = true; // Toggle for grid visibility
     this.showCellNumbers = true; // New toggle for cell number debugging
+    this.lastFrameTime = performance.now(); // Initialize last frame time
+    this.fps = 0; // Initialize FPS counter
   }
 
   // Method to add a unit to the map
@@ -86,6 +88,10 @@ export class Map {
 
   // Method to render the map on the canvas
   renderMap() {
+    const currentTime = performance.now();
+    this.fps = Math.round(1000 / (currentTime - this.lastFrameTime)); // Calculate FPS
+    this.lastFrameTime = currentTime; // Update last frame time
+
     this.ctx.clearRect(0, 0, this.width, this.height);
 
     for (let unit of this.units) {
@@ -103,6 +109,9 @@ export class Map {
     if (this.showCellNumbers) {
       this.drawCellNumbers();
     }
+
+    // Draw FPS on the canvas
+    this.drawText(`FPS: ${this.fps}`, 10, 20);
   }
 
   // Utility method to draw a circle on the canvas
