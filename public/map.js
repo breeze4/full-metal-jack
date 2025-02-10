@@ -110,8 +110,43 @@ export class Map {
       this.drawCellNumbers();
     }
 
+    if (this.showCursorLine) {
+      this.drawCursorLine();
+    }
+
     // Draw FPS on the canvas
-    this.drawText(`FPS: ${this.fps}`, 10, 20);
+    this.drawText(`FPS: ${this.fps}`, 20, -20);
+  }
+
+  startUnitMove() {
+    this.showCursorLine = true;
+  }
+
+  endUnitMove() {
+    this.showCursorLine = false;
+  }
+
+  updateUnitMove(positions) {
+    this.cursorLinePositions = positions;
+  }
+
+  drawCursorLine() {
+    const { startX, startY, endX, endY } = this.cursorLinePositions;
+
+    // Draw the small circle around the cursor
+    this.drawCircle(endX, endY, 5, 'green');
+
+    // Draw a line from the cursor to the unit
+    this.ctx.beginPath();
+    this.ctx.moveTo(endX, endY);
+    this.ctx.lineTo(startX, startY);
+    this.ctx.strokeStyle = 'green';
+    this.ctx.stroke();
+
+    // Log cell coordinates when clicking in move mode
+    const cellX = Math.floor(endX / this.gridSize);
+    const cellY = Math.floor(endY / this.gridSize);
+    console.log(`Cursor on cell (${cellX}, ${cellY})`);
   }
 
   // Utility method to draw a circle on the canvas

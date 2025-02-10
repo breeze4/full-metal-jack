@@ -19,42 +19,46 @@ document.getElementById('end-turn-button').addEventListener('click', () => {
   gameEngine.endTurn();
 });
 
-// Initialize game
-gameEngine.initializeGame();
-
-document.addEventListener('DOMContentLoaded', () => {
-  map.renderMap();
-});
-
 let selectedUnit = null;
 let moveMode = false;
+
+// Start the rendering loop
+function renderLoop() {
+  map.renderMap(); // Re-render the map each frame
+  requestAnimationFrame(renderLoop); // Schedule the next frame
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize game
+  gameEngine.initializeGame();
+
+  renderLoop();
+  // map.renderMap();
+});
 
 map.canvas.addEventListener('mousemove', (event) => {
   if (!moveMode || !selectedUnit) return;
 
+  const { x, y } = getCursorPosition();
+  const movePositions = {
+    startX: selectedUnit.x,
+    startY: selectedUnit.y,
+    endX: x,
+    endY: y
+  };
+  map.updateUnitMove(movePositions);
+
+});
+
+function getCursorPosition() {
   const rect = map.canvas.getBoundingClientRect();
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
 
-  // Clear previous line and circle
-  map.ctx.clearRect(0, 0, map.width, map.height);
-  map.renderMap();
-
-  // Draw the small circle around the cursor
-  map.drawCircle(x, y, 5, 'green');
-
-  // Draw a line from the cursor to the unit
-  map.ctx.beginPath();
-  map.ctx.moveTo(x, y);
-  map.ctx.lineTo(selectedUnit.x, selectedUnit.y);
-  map.ctx.strokeStyle = 'green';
-  map.ctx.stroke();
-
-  // Log cell coordinates when clicking in move mode
-  const cellX = Math.floor(x / map.gridSize);
-  const cellY = Math.floor(y / map.gridSize);
-  console.log(`Cursor on cell (${cellX}, ${cellY})`);
-});
+  return {
+    x, y
+  }
+}
 
 map.canvas.addEventListener('click', (event) => {
   const rect = map.canvas.getBoundingClientRect();
@@ -67,6 +71,15 @@ map.canvas.addEventListener('click', (event) => {
       if (Math.abs(unit.x - x) <= unit.radius && Math.abs(unit.y - y) <= unit.radius) {
         selectedUnit = unit;
         moveMode = true;
+        const { x, y } = getCursorPosition();
+        const movePositions = {
+          startX: selectedUnit.x,
+          startY: selectedUnit.y,
+          endX: x,
+          endY: y
+        };
+        map.updateUnitMove(movePositions);
+        map.startUnitMove();
         break;
       }
     }
@@ -77,6 +90,7 @@ map.canvas.addEventListener('click', (event) => {
       map.renderMap();
       selectedUnit = null;
       moveMode = false;
+      map.endUnitMove();
     }
 
     // Log cell coordinates when clicking in move mode
