@@ -18,7 +18,7 @@ export class Map {
     const x = Math.round((unit.x / this.gridSize) * this.gridSize + this.gridSize / 2);
     const y = Math.round((unit.y / this.gridSize) * this.gridSize + this.gridSize / 2);
     if (this.isPositionValid(x, y, unit.radius)) {
-      this.units.push(new Unit(x, y, unit.radius, unit.label));
+      this.units.push(unit);
       console.log(`Added unit at (${x}, ${y}) with radius ${unit.radius}`);
     } else {
       console.error('Invalid position to add unit due to collision or out of bounds.');
@@ -30,7 +30,7 @@ export class Map {
     const x = Math.round((obstacle.x / this.gridSize) * this.gridSize + this.gridSize / 2);
     const y = Math.round((obstacle.y / this.gridSize) * this.gridSize + this.gridSize / 2);
     if (this.isPositionValid(x, y, obstacle.radius)) {
-      this.obstacles.push(new Obstacle(x, y, 20)); // Set radius to half of the grid size
+      this.obstacles.push(obstacle); // Set radius to half of the grid size
       console.log(`Added obstacle at (${x}, ${y}) with radius ${obstacle.radius}`);
     } else {
       console.error('Invalid position to add obstacle due to collision or out of bounds.');
