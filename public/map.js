@@ -132,8 +132,8 @@ export class Map {
     }
   }
 
-  // Utility method to snap a position to the nearest grid cell
+  // Utility method to snap a position to the center of the nearest grid cell
   snapToGrid(position) {
-    return Math.round(position / this.gridSize) * this.gridSize;
+    return Math.round((position / this.gridSize) * this.gridSize + this.gridSize / 2);
   }
 }
