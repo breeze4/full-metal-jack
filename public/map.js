@@ -96,6 +96,6 @@ export class Map {
   drawText(text, x, y) {
     this.ctx.font = '10px Arial'; // Set font size and family
     this.ctx.textAlign = 'center';
-    this.ctx.fillText(text, x, y - 25); // Draw text slightly above the unit for better visibility
+    this.ctx.fillText(text, x, y + 30); // Draw text slightly below the unit for better visibility
   }
 }
