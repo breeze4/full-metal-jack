@@ -38,10 +38,6 @@ export class GameEngine {
     const obstacle1 = new Obstacle(200, 200, 30); // Create an obstacle with radius 30 at position (200, 200)
     this.map.addObstacle(obstacle1);
 
-    // Try moving the unit
-    // this.map.moveUnit(unit1, 150, 150); // Successful move
-
-    // this.map.moveUnit(unit1, 190, 190); // Move fails due to collision with the obstacle at (200, 200)
 
   }
 

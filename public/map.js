@@ -11,7 +11,7 @@ export class Map {
     this.canvas.height = height;
     this.gridSize = 40; // Grid size in pixels
     this.showGrid = true; // Toggle for grid visibility
-    this.showCellNumbers = false; // New toggle for cell number debugging
+    this.showCellNumbers = true; // New toggle for cell number debugging
   }
 
   // Method to add a unit to the map
