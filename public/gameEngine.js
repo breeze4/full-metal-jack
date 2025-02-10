@@ -1,9 +1,10 @@
 // Define a Unit Class
 class Unit {
-  constructor(x, y, radius) {
+  constructor(x, y, radius, label) {
     this.x = x;
     this.y = y;
     this.radius = radius; // Defines the space occupied by the unit
+    this.label = label; // New field to store the label of the unit
   }
 }
 
@@ -31,7 +32,7 @@ export class GameEngine {
     // Stub: setup initial game state from configs
 
 
-    const unit1 = new Unit(100, 100, 20); // Create a unit with radius 20 at position (100, 100)
+    const unit1 = new Unit(100, 100, 20, 'Soldier'); // Create a unit with radius 20 at position (100, 100) and label 'Soldier'
     this.map.addUnit(unit1);
 
     const obstacle1 = new Obstacle(200, 200, 30); // Create an obstacle with radius 30 at position (200, 200)

@@ -76,6 +76,7 @@ export class Map {
 
     for (let unit of this.units) {
       this.drawCircle(unit.x, unit.y, unit.radius, 'blue');
+      this.drawText(unit.label, unit.x, unit.y); // Draw the label on top of the unit
     }
     for (let obstacle of this.obstacles) {
       this.drawCircle(obstacle.x, obstacle.y, obstacle.radius, 'red');
@@ -89,5 +90,12 @@ export class Map {
     this.ctx.fillStyle = color;
     this.ctx.fill();
     this.ctx.closePath();
+  }
+
+  // Utility method to draw text on the canvas
+  drawText(text, x, y) {
+    this.ctx.font = '10px Arial'; // Set font size and family
+    this.ctx.textAlign = 'center';
+    this.ctx.fillText(text, x, y - 5); // Draw text slightly above the unit for better visibility
   }
 }
