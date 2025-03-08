@@ -113,9 +113,6 @@ export class Map {
     if (this.showCursorLine) {
       this.drawCursorLine();
     }
-
-    // Draw FPS on the canvas
-    this.drawText(`FPS: ${this.fps}`, 20, -20);
   }
 
   startUnitMove() {
