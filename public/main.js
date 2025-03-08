@@ -10,6 +10,26 @@ const storageManager = new StorageManager();
 const map = new Map(1000, 800); // Define a map of size 1000x1000
 const gameEngine = new GameEngine(SoldierConfig, WeaponConfig, GameModeConfig, GameStats, map);
 
+// Create turn counter display
+const turnCounter = document.createElement('div');
+turnCounter.id = 'turn-counter';
+turnCounter.style.position = 'fixed';
+turnCounter.style.top = '20px';
+turnCounter.style.right = '20px';
+turnCounter.style.padding = '10px';
+turnCounter.style.borderRadius = '5px';
+turnCounter.style.fontFamily = 'Arial, sans-serif';
+turnCounter.style.fontWeight = 'bold';
+document.body.appendChild(turnCounter);
+
+function updateTurnCounter() {
+  const turn = gameEngine.getCurrentTurn();
+  const isPlayerTurn = turn % 2 === 0;
+  turnCounter.style.backgroundColor = isPlayerTurn ? '#90EE90' : '#333333';
+  turnCounter.style.color = isPlayerTurn ? '#000000' : '#FFFFFF';
+  turnCounter.textContent = `Turn: ${turn}`;
+}
+
 // Bind UI elements
 document.getElementById('save-state-button').addEventListener('click', () => {
   storageManager.saveState(gameEngine.getGameState());
@@ -17,6 +37,7 @@ document.getElementById('save-state-button').addEventListener('click', () => {
 
 document.getElementById('end-turn-button').addEventListener('click', () => {
   gameEngine.endTurn();
+  updateTurnCounter();
 });
 
 let selectedUnit = null;
@@ -31,7 +52,7 @@ function renderLoop() {
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize game
   gameEngine.initializeGame();
-
+  updateTurnCounter();
   renderLoop();
 });
 

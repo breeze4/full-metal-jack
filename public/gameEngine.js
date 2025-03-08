@@ -81,4 +81,8 @@ export class GameEngine {
     // Return the current game state for saving purposes
     return this.gameStats;
   }
+
+  getCurrentTurn() {
+    return this.currentTurn;
+  }
 }
