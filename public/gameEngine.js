@@ -18,7 +18,7 @@ class NPCUnit extends Unit {
   constructor(x, y, radius, label, onMove = null) {
     super(x, y, radius, label, true, onMove || ((context) => {
       // By default, NPCs don't allow direct movement via clicks
-      return false;
+      return true;
     }));
     this.behavior = 'idle'; // Can be used to define different NPC behaviors
     this.detectionRange = radius * 2; // NPCs can detect units within twice their radius
@@ -49,9 +49,13 @@ export class GameEngine {
     this.currentTurn = 0;
     this.movedUnits = new Set();
     this.moveValidators = [
-      this.validateAllUnitsMovedOnce.bind(this),
+      this.validateAllCurrentTurnUnitsMovedOnce.bind(this),
       // Add more validators here as needed
     ];
+  }
+
+  isPlayerTurn() {
+    return this.currentTurn % 2 === 0;
   }
 
   // Track when a unit has moved
@@ -65,20 +69,25 @@ export class GameEngine {
     this.movedUnits.clear();
   }
 
-  // Validator: Check if all player units have moved once
-  validateAllUnitsMovedOnce() {
-    const playerUnits = this.map.units.filter(unit => !unit.isNPC);
-    const allUnitsMoved = playerUnits.every(unit => this.movedUnits.has(unit));
+  // Validator: Check if all current turn's units have moved once
+  validateAllCurrentTurnUnitsMovedOnce() {
+    const isPlayerTurn = this.isPlayerTurn();
+    const currentTurnUnits = this.map.units.filter(unit => 
+      isPlayerTurn ? !unit.isNPC : unit.isNPC
+    );
+    
+    const allUnitsMoved = currentTurnUnits.every(unit => this.movedUnits.has(unit));
+    const turnOwner = isPlayerTurn ? "player" : "NPC";
     
     if (allUnitsMoved) {
       return {
         shouldEndTurn: true,
-        message: "All units have moved. Turn will end automatically."
+        message: `All ${turnOwner} units have moved. Turn will end automatically.`
       };
     }
     return {
       shouldEndTurn: false,
-      message: `${this.movedUnits.size}/${playerUnits.length} units moved`
+      message: `${this.movedUnits.size}/${currentTurnUnits.length} ${turnOwner} units moved`
     };
   }
 
