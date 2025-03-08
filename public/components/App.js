@@ -1,10 +1,10 @@
-import { render, h } from 'preact';
-import { useState, useEffect } from 'preact/hooks';
-import htm from 'htm';
-import { LeftPanel } from './LeftPanel.js';
-import { TurnCounter } from './TurnCounter.js';
-import { GameControls } from './GameControls.js';
-import { gameEngine, map, storageManager } from '../gameSetup.js';
+import { render, h } from "preact";
+import { useState, useEffect } from "preact/hooks";
+import htm from "htm";
+import { LeftPanel } from "./LeftPanel.js";
+import { TurnCounter } from "./TurnCounter.js";
+import { GameControls } from "./GameControls.js";
+import { gameEngine, map, storageManager } from "../gameSetup.js";
 
 // Initialize htm with Preact's h function
 const html = htm.bind(h);
@@ -14,11 +14,11 @@ function App() {
     turn: gameEngine.getCurrentTurn(),
     fps: 0,
     mousePos: { x: 0, y: 0 },
-    canvasPos: { x: '--', y: '--' },
-    gridPos: { x: '--', y: '--' },
+    canvasPos: { x: "--", y: "--" },
+    gridPos: { x: "--", y: "--" },
     units: [],
     selectedUnit: null,
-    moveMode: false
+    moveMode: false,
   });
 
   useEffect(() => {
@@ -31,15 +31,17 @@ function App() {
       frameCount++;
 
       if (currentTime - lastFpsUpdate > FPS_UPDATE_INTERVAL) {
-        const fps = Math.round((frameCount * 1000) / (currentTime - lastFpsUpdate));
+        const fps = Math.round(
+          (frameCount * 1000) / (currentTime - lastFpsUpdate)
+        );
         frameCount = 0;
         lastFpsUpdate = currentTime;
 
-        setGameState(prev => ({
+        setGameState((prev) => ({
           ...prev,
           fps,
           turn: gameEngine.getCurrentTurn(),
-          units: [...gameEngine.map.units]
+          units: [...gameEngine.map.units],
         }));
       }
 
@@ -52,51 +54,54 @@ function App() {
   useEffect(() => {
     function handleMouseMove(event) {
       const mousePos = { x: event.clientX, y: event.clientY };
-      
+
       const rect = map.canvas.getBoundingClientRect();
 
-      let canvasPos = { x: '--', y: '--' };
-      let gridPos = { x: '--', y: '--' };
+      let canvasPos = { x: "--", y: "--" };
+      let gridPos = { x: "--", y: "--" };
 
-      if (event.clientX >= rect.left && event.clientX <= rect.right &&
-          event.clientY >= rect.top && event.clientY <= rect.bottom) {
+      if (
+        event.clientX >= rect.left &&
+        event.clientX <= rect.right &&
+        event.clientY >= rect.top &&
+        event.clientY <= rect.bottom
+      ) {
         const canvasX = Math.round(event.clientX - rect.left);
         const canvasY = Math.round(event.clientY - rect.top);
         canvasPos = { x: canvasX, y: canvasY };
-        
+
         const gridX = Math.floor(canvasX / map.gridSize);
         const gridY = Math.floor(canvasY / map.gridSize);
         gridPos = { x: gridX, y: gridY };
-        
 
         if (gameState.moveMode && gameState.selectedUnit) {
-          // console.log('[App.js] Move mode active:', { 
-          //   unit: gameState.selectedUnit.label, 
+          // console.log('[App.js] Move mode active:', {
+          //   unit: gameState.selectedUnit.label,
           //   from: { x: gameState.selectedUnit.x, y: gameState.selectedUnit.y },
           //   to: { x: canvasX, y: canvasY }
           // });
-          
+
           const movePositions = {
             startX: gameState.selectedUnit.x,
             startY: gameState.selectedUnit.y,
             endX: canvasX,
             endY: canvasY,
-            unit: gameState.selectedUnit
+            unit: gameState.selectedUnit,
           };
           map.updateUnitMove(movePositions);
         }
       }
 
-      setGameState(prev => ({
+      setGameState((prev) => ({
         ...prev,
         mousePos,
         canvasPos,
-        gridPos
+        gridPos,
       }));
     }
 
-    document.addEventListener('mousemove', handleMouseMove);
-    return () => document.removeEventListener('mousemove', handleMouseMove);
+    document.addEventListener("mousemove", handleMouseMove);
+    return () => document.removeEventListener("mousemove", handleMouseMove);
   }, [gameState.moveMode, gameState.selectedUnit]);
 
   useEffect(() => {
@@ -104,16 +109,23 @@ function App() {
       const rect = map.canvas.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
-      console.log('[App.js] Canvas clicked:', { x, y, moveMode: gameState.moveMode });
+      console.log("[App.js] Canvas clicked:", {
+        x,
+        y,
+        moveMode: gameState.moveMode,
+      });
 
       if (!gameState.moveMode) {
         for (let unit of map.units) {
-          if (Math.abs(unit.x - x) <= unit.radius && Math.abs(unit.y - y) <= unit.radius) {
-            console.log('[App.js] Unit selected:', { 
-              unit: unit.label, 
+          if (
+            Math.abs(unit.x - x) <= unit.radius &&
+            Math.abs(unit.y - y) <= unit.radius
+          ) {
+            console.log("[App.js] Unit selected:", {
+              unit: unit.label,
               position: { x: unit.x, y: unit.y },
               hasActed: unit.hasActed,
-              actionType: unit.actionType
+              actionType: unit.actionType,
             });
 
             const context = {
@@ -121,25 +133,29 @@ function App() {
               x: x,
               y: y,
               unit: unit,
-              gameState: gameEngine.getGameState()
+              gameState: gameEngine.getGameState(),
             };
 
             if (unit.canMove(context)) {
-              console.log('[App.js] Unit can move:', { unit: unit.label });
-              setGameState(prev => ({ ...prev, selectedUnit: unit, moveMode: true }));
+              console.log("[App.js] Unit can move:", { unit: unit.label });
+              setGameState((prev) => ({
+                ...prev,
+                selectedUnit: unit,
+                moveMode: true,
+              }));
               const movePositions = {
                 startX: unit.x,
                 startY: unit.y,
                 endX: x,
                 endY: y,
-                unit: unit
+                unit: unit,
               };
               map.updateUnitMove(movePositions);
               map.startUnitMove();
             } else if (unit.hasActed) {
-              console.log('[App.js] Unit has already acted:', { 
-                unit: unit.label, 
-                actionType: unit.actionType 
+              console.log("[App.js] Unit has already acted:", {
+                unit: unit.label,
+                actionType: unit.actionType,
               });
             }
             break;
@@ -149,24 +165,31 @@ function App() {
         let hitEnemy = false;
         for (let unit of map.units) {
           if (unit.isDead()) continue;
-          
-          if (Math.abs(unit.x - x) <= unit.radius && Math.abs(unit.y - y) <= unit.radius) {
+
+          if (
+            Math.abs(unit.x - x) <= unit.radius &&
+            Math.abs(unit.y - y) <= unit.radius
+          ) {
             if (unit.isNPC !== gameState.selectedUnit.isNPC) {
-              console.log('[App.js] Enemy unit targeted:', { 
+              console.log("[App.js] Enemy unit targeted:", {
                 attacker: gameState.selectedUnit.label,
                 target: unit.label,
-                targetHealth: unit.health
+                targetHealth: unit.health,
               });
-              
-              if (gameState.selectedUnit.canAttack({ currentTurn: gameEngine.currentTurn })) {
+
+              if (
+                gameState.selectedUnit.canAttack({
+                  currentTurn: gameEngine.currentTurn,
+                })
+              ) {
                 const isDead = unit.takeDamage(gameState.selectedUnit.damage);
-                console.log('[App.js] Attack result:', {
+                console.log("[App.js] Attack result:", {
                   damage: gameState.selectedUnit.damage,
                   remainingHealth: unit.health,
-                  targetDefeated: isDead
+                  targetDefeated: isDead,
                 });
-                
-                gameState.selectedUnit.performAction('attack');
+
+                gameState.selectedUnit.performAction("attack");
                 gameEngine.recordUnitMove(gameState.selectedUnit);
                 hitEnemy = true;
               }
@@ -176,24 +199,28 @@ function App() {
         }
 
         if (!hitEnemy && gameState.selectedUnit) {
-          console.log('[App.js] Moving unit:', {
+          console.log("[App.js] Moving unit:", {
             unit: gameState.selectedUnit.label,
             from: { x: gameState.selectedUnit.x, y: gameState.selectedUnit.y },
-            to: { x, y }
+            to: { x, y },
           });
-          
+
           map.moveUnit(gameState.selectedUnit, x, y);
-          gameState.selectedUnit.performAction('move');
+          gameState.selectedUnit.performAction("move");
           gameEngine.recordUnitMove(gameState.selectedUnit);
         }
 
-        setGameState(prev => ({ ...prev, selectedUnit: null, moveMode: false }));
+        setGameState((prev) => ({
+          ...prev,
+          selectedUnit: null,
+          moveMode: false,
+        }));
         map.endUnitMove();
       }
     }
 
-    map.canvas.addEventListener('click', handleCanvasClick);
-    return () => map.canvas.removeEventListener('click', handleCanvasClick);
+    map.canvas.addEventListener("click", handleCanvasClick);
+    return () => map.canvas.removeEventListener("click", handleCanvasClick);
   }, [gameState.moveMode, gameState.selectedUnit]);
 
   return html`
@@ -211,13 +238,16 @@ function App() {
         onSave=${() => storageManager.saveState(gameEngine.getGameState())}
         onEndTurn=${() => {
           gameEngine.endTurn();
-          setGameState(prev => ({ ...prev, turn: gameEngine.getCurrentTurn() }));
+          setGameState((prev) => ({
+            ...prev,
+            turn: gameEngine.getCurrentTurn(),
+          }));
         }}
       />
     </div>
   `;
 }
 
-render(html`<${App} />`, document.getElementById('ui-root'));
+render(html`<${App} />`, document.getElementById("ui-root"));
 
-export default App; 
+export default App;
