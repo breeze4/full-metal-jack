@@ -1,26 +1,32 @@
 // Define a Unit Class
 class Unit {
-  constructor(x, y, radius, label, isNPC = false, onMove = null) {
+  constructor(x, y, radius, label, isNPC = false) {
     this.x = x;
     this.y = y;
     this.radius = radius; // Defines the space occupied by the unit
     this.label = label; // New field to store the label of the unit
     this.isNPC = isNPC;
     this.color = isNPC ? '#333333' : '#2c8c2c'; // Black for NPCs, Green for players
-    this.onMove = onMove || ((context) => true); // Default to always allow movement
+    this.hasMoved = false; // Track if unit has moved this turn
   }
 
   canMove(context) {
-    return this.onMove(context);
+    // Player units can only move on even turns (0, 2, 4...)
+    const isCorrectTurn = this.isNPC ? 
+      context.currentTurn % 2 === 1 : // NPC turns are odd
+      context.currentTurn % 2 === 0;  // Player turns are even
+    
+    return !this.hasMoved && isCorrectTurn;
+  }
+
+  resetMoveState() {
+    this.hasMoved = false;
   }
 }
 
 class NPCUnit extends Unit {
-  constructor(x, y, radius, label, onMove = null) {
-    super(x, y, radius, label, true, onMove || ((context) => {
-      // By default, NPCs don't allow direct movement via clicks
-      return true;
-    }));
+  constructor(x, y, radius, label) {
+    super(x, y, radius, label, true);
     this.behavior = 'idle'; // Can be used to define different NPC behaviors
     this.detectionRange = radius * 2; // NPCs can detect units within twice their radius
   }
@@ -51,7 +57,6 @@ export class GameEngine {
     this.movedUnits = new Set();
     this.moveValidators = [
       this.validateAllCurrentTurnUnitsMovedOnce.bind(this),
-      // Add more validators here as needed
     ];
   }
 
@@ -59,15 +64,18 @@ export class GameEngine {
     return this.currentTurn % 2 === 0;
   }
 
-  // Track when a unit has moved
-  recordUnitMove(unit) {
-    this.movedUnits.add(unit);
-    this.checkEndTurnConditions();
-  }
-
   // Reset moved units tracking at start of turn
   startTurn() {
     this.movedUnits.clear();
+    // Reset all units' move states
+    this.map.units.forEach(unit => unit.resetMoveState());
+  }
+
+  // Track when a unit has moved
+  recordUnitMove(unit) {
+    unit.hasMoved = true; // Mark the unit as moved
+    this.movedUnits.add(unit);
+    this.checkEndTurnConditions();
   }
 
   // Validator: Check if all current turn's units have moved once
@@ -77,7 +85,7 @@ export class GameEngine {
       isPlayerTurn ? !unit.isNPC : unit.isNPC
     );
     
-    const allUnitsMoved = currentTurnUnits.every(unit => this.movedUnits.has(unit));
+    const allUnitsMoved = currentTurnUnits.every(unit => unit.hasMoved);
     const turnOwner = isPlayerTurn ? "player" : "NPC";
     
     if (allUnitsMoved) {
@@ -107,32 +115,19 @@ export class GameEngine {
 
   initializeGame() {
     console.log("Game initialized with config:", this.gameStats);
-    // Stub: setup initial game state from configs
-
-    // Create a player unit with move validation
-    const unit1 = new Unit(100, 100, 20, 'Soldier', false, (context) => {
-      // Example validation: Check if it's the player's turn
-      return this.currentTurn % 2 === 0;
-    });
+    
+    // Create player units
+    const unit1 = new Unit(100, 100, 20, 'Soldier');
     this.map.addUnit(unit1);
 
-    // Create another player unit
-    const unit2 = new Unit(140, 100, 20, 'Soldier 2', false, (context) => {
-      return this.currentTurn % 2 === 0;
-    });
+    const unit2 = new Unit(140, 100, 20, 'Soldier 2');
     this.map.addUnit(unit2);
 
-    // Create an NPC unit with custom move validation
-    const npcUnit = new NPCUnit(300, 300, 20, 'Enemy Soldier', (context) => {
-      // NPCs only move on odd turns
-      return this.currentTurn % 2 === 1;
-    });
+    // Create NPC units
+    const npcUnit = new NPCUnit(300, 300, 20, 'Enemy Soldier');
     this.map.addUnit(npcUnit);
 
-    // Create another NPC unit
-    const npcUnit2 = new NPCUnit(340, 300, 20, 'Enemy Soldier 2', (context) => {
-      return this.currentTurn % 2 === 1;
-    });
+    const npcUnit2 = new NPCUnit(340, 300, 20, 'Enemy Soldier 2');
     this.map.addUnit(npcUnit2);
 
     const obstacle1 = new Obstacle(200, 200, 30);

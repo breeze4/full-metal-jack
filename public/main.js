@@ -87,10 +87,10 @@ map.canvas.addEventListener('mousemove', (event) => {
     startX: selectedUnit.x,
     startY: selectedUnit.y,
     endX: x,
-    endY: y
+    endY: y,
+    unit: selectedUnit
   };
   map.updateUnitMove(movePositions);
-
 });
 
 function getCursorPosition(event) {
@@ -129,7 +129,8 @@ map.canvas.addEventListener('click', (event) => {
             startX: selectedUnit.x,
             startY: selectedUnit.y,
             endX: x,
-            endY: y
+            endY: y,
+            unit: selectedUnit
           };
           map.updateUnitMove(movePositions);
           map.startUnitMove();

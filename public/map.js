@@ -128,16 +128,19 @@ export class Map {
   }
 
   drawCursorLine() {
-    const { startX, startY, endX, endY } = this.cursorLinePositions;
+    const { startX, startY, endX, endY, unit } = this.cursorLinePositions;
+
+    // Use the unit's color for the cursor line
+    const lineColor = unit && unit.color || 'black';
 
     // Draw the small circle around the cursor
-    this.drawCircle(endX, endY, 5, 'green');
+    this.drawCircle(endX, endY, 5, lineColor);
 
     // Draw a line from the cursor to the unit
     this.ctx.beginPath();
     this.ctx.moveTo(endX, endY);
     this.ctx.lineTo(startX, startY);
-    this.ctx.strokeStyle = 'green';
+    this.ctx.strokeStyle = lineColor;
     this.ctx.stroke();
 
     // Log cell coordinates when clicking in move mode
