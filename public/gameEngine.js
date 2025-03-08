@@ -145,7 +145,7 @@ export class GameEngine {
     for (const validator of this.moveValidators) {
       const result = validator();
       if (result.shouldEndTurn) {
-        console.log(result.message);
+        console.log('[gameEngine.js] End turn conditions met:', result.message);
         this.endTurn();
         return true;
       }
@@ -154,7 +154,7 @@ export class GameEngine {
   }
 
   initializeGame() {
-    console.log("Game initialized with config:", this.gameStats);
+    console.log("[gameEngine.js] Game initialized with config:", this.gameStats);
     
     // Create player units
     const unit1 = new Unit(100, 100, 20, 'Soldier');
@@ -175,7 +175,7 @@ export class GameEngine {
   }
 
   endTurn() {
-    console.log("Ending turn", this.currentTurn);
+    console.log("[gameEngine.js] Ending turn", this.currentTurn);
     this.currentTurn++;
     this.startTurn();
     // Stub: Handle end of turn logic, increment turn counter, etc.

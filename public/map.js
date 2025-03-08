@@ -22,9 +22,9 @@ export class Map {
     const y = Math.round((unit.y / this.gridSize) * this.gridSize + this.gridSize / 2);
     if (this.isPositionValid(x, y, unit.radius)) {
       this.units.push(unit);
-      console.log(`Added unit at (${x}, ${y}) with radius ${unit.radius}`);
+      console.log(`[map.js] Added unit at (${x}, ${y}) with radius ${unit.radius}`);
     } else {
-      console.error('Invalid position to add unit due to collision or out of bounds.');
+      console.error('[map.js] Invalid position to add unit due to collision or out of bounds.');
     }
   }
 
@@ -34,9 +34,9 @@ export class Map {
     const y = Math.round((obstacle.y / this.gridSize) * this.gridSize + this.gridSize / 2);
     if (this.isPositionValid(x, y, obstacle.radius)) {
       this.obstacles.push(obstacle); // Set radius to half of the grid size
-      console.log(`Added obstacle at (${x}, ${y}) with radius ${obstacle.radius}`);
+      console.log(`[map.js] Added obstacle at (${x}, ${y}) with radius ${obstacle.radius}`);
     } else {
-      console.error('Invalid position to add obstacle due to collision or out of bounds.');
+      console.error('[map.js] Invalid position to add obstacle due to collision or out of bounds.');
     }
   }
 
@@ -153,11 +153,6 @@ export class Map {
   }
 
   updateUnitMove(positions) {
-    // console.log('[map.js] Updating unit move preview:', {
-    //   unit: positions.unit.label,
-    //   from: { x: positions.startX, y: positions.startY },
-    //   to: { x: positions.endX, y: positions.endY }
-    // });
     this.cursorLinePositions = positions;
   }
 
