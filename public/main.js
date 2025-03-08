@@ -93,10 +93,12 @@ function updateTurnOrder() {
 
 // Bind UI elements
 document.getElementById('save-state-button').addEventListener('click', () => {
+  console.log('[main.js] Save state button clicked');
   storageManager.saveState(gameEngine.getGameState());
 });
 
 document.getElementById('end-turn-button').addEventListener('click', () => {
+  console.log('[main.js] End turn button clicked - Current turn:', gameEngine.getCurrentTurn());
   gameEngine.endTurn();
   updateTurnCounter();
 });
@@ -126,51 +128,4 @@ document.addEventListener('DOMContentLoaded', () => {
   gameEngine.initializeGame();
   updateTurnCounter();
   renderLoop();
-});
-
-map.canvas.addEventListener('mousemove', (event) => {
-  if (!moveMode || !selectedUnit) return;
-
-  const { x, y } = getCursorPosition(event);
-  const movePositions = {
-    startX: selectedUnit.x,
-    startY: selectedUnit.y,
-    endX: x,
-    endY: y,
-    unit: selectedUnit
-  };
-  map.updateUnitMove(movePositions);
-});
-
-function getCursorPosition(event) {
-  const rect = map.canvas.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
-
-  return {
-    x, y
-  }
-}
-
-
-// Track mouse movement across entire window
-document.addEventListener('mousemove', (event) => {
-  const x = event.clientX;
-  const y = event.clientY;
-  mouseCoords.textContent = `Mouse: (${x}, ${y})`;
-
-  // Calculate grid coordinates if mouse is over canvas
-  const rect = map.canvas.getBoundingClientRect();
-  if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
-    const canvasX = Math.round(x - rect.left);
-    const canvasY = Math.round(y - rect.top);
-    canvasCoords.textContent = `Canvas: (${canvasX}, ${canvasY})`;
-    
-    const gridX = Math.floor(canvasX / map.gridSize);
-    const gridY = Math.floor(canvasY / map.gridSize);
-    gridCoords.textContent = `Grid: (${gridX}, ${gridY})`;
-  } else {
-    canvasCoords.textContent = 'Canvas: (--,--)';
-    gridCoords.textContent = 'Grid: (--,--)';
-  }
 });

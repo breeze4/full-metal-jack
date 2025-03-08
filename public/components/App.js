@@ -52,6 +52,7 @@ function App() {
   useEffect(() => {
     function handleMouseMove(event) {
       const mousePos = { x: event.clientX, y: event.clientY };
+      
       const rect = map.canvas.getBoundingClientRect();
 
       let canvasPos = { x: '--', y: '--' };
@@ -66,8 +67,15 @@ function App() {
         const gridX = Math.floor(canvasX / map.gridSize);
         const gridY = Math.floor(canvasY / map.gridSize);
         gridPos = { x: gridX, y: gridY };
+        
 
         if (gameState.moveMode && gameState.selectedUnit) {
+          // console.log('[App.js] Move mode active:', { 
+          //   unit: gameState.selectedUnit.label, 
+          //   from: { x: gameState.selectedUnit.x, y: gameState.selectedUnit.y },
+          //   to: { x: canvasX, y: canvasY }
+          // });
+          
           const movePositions = {
             startX: gameState.selectedUnit.x,
             startY: gameState.selectedUnit.y,
@@ -96,10 +104,18 @@ function App() {
       const rect = map.canvas.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
+      console.log('[App.js] Canvas clicked:', { x, y, moveMode: gameState.moveMode });
 
       if (!gameState.moveMode) {
         for (let unit of map.units) {
           if (Math.abs(unit.x - x) <= unit.radius && Math.abs(unit.y - y) <= unit.radius) {
+            console.log('[App.js] Unit selected:', { 
+              unit: unit.label, 
+              position: { x: unit.x, y: unit.y },
+              hasActed: unit.hasActed,
+              actionType: unit.actionType
+            });
+
             const context = {
               currentTurn: gameEngine.currentTurn,
               x: x,
@@ -109,6 +125,7 @@ function App() {
             };
 
             if (unit.canMove(context)) {
+              console.log('[App.js] Unit can move:', { unit: unit.label });
               setGameState(prev => ({ ...prev, selectedUnit: unit, moveMode: true }));
               const movePositions = {
                 startX: unit.x,
@@ -120,7 +137,10 @@ function App() {
               map.updateUnitMove(movePositions);
               map.startUnitMove();
             } else if (unit.hasActed) {
-              console.log(`${unit.label} has already ${unit.actionType}d this turn!`);
+              console.log('[App.js] Unit has already acted:', { 
+                unit: unit.label, 
+                actionType: unit.actionType 
+              });
             }
             break;
           }
@@ -132,12 +152,20 @@ function App() {
           
           if (Math.abs(unit.x - x) <= unit.radius && Math.abs(unit.y - y) <= unit.radius) {
             if (unit.isNPC !== gameState.selectedUnit.isNPC) {
+              console.log('[App.js] Enemy unit targeted:', { 
+                attacker: gameState.selectedUnit.label,
+                target: unit.label,
+                targetHealth: unit.health
+              });
+              
               if (gameState.selectedUnit.canAttack({ currentTurn: gameEngine.currentTurn })) {
                 const isDead = unit.takeDamage(gameState.selectedUnit.damage);
-                console.log(`${gameState.selectedUnit.label} attacks ${unit.label} for ${gameState.selectedUnit.damage} damage! ${unit.health}hp remaining`);
-                if (isDead) {
-                  console.log(`${unit.label} has been defeated!`);
-                }
+                console.log('[App.js] Attack result:', {
+                  damage: gameState.selectedUnit.damage,
+                  remainingHealth: unit.health,
+                  targetDefeated: isDead
+                });
+                
                 gameState.selectedUnit.performAction('attack');
                 gameEngine.recordUnitMove(gameState.selectedUnit);
                 hitEnemy = true;
@@ -148,7 +176,12 @@ function App() {
         }
 
         if (!hitEnemy && gameState.selectedUnit) {
-          console.log('[App.js]Moving unit:', gameState.selectedUnit.label, 'to:', { x, y });
+          console.log('[App.js] Moving unit:', {
+            unit: gameState.selectedUnit.label,
+            from: { x: gameState.selectedUnit.x, y: gameState.selectedUnit.y },
+            to: { x, y }
+          });
+          
           map.moveUnit(gameState.selectedUnit, x, y);
           gameState.selectedUnit.performAction('move');
           gameEngine.recordUnitMove(gameState.selectedUnit);

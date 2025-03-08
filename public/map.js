@@ -47,14 +47,25 @@ export class Map {
     const centerX = (cellX * this.gridSize) + this.gridSize / 2;
     const centerY = (cellY * this.gridSize) + this.gridSize / 2;
 
-    console.log(`Moving unit to cell (${cellX}, ${cellY}) at position (${centerX}, ${centerY})`);
+    console.log('[map.js] Attempting to move unit:', {
+      unit: unit.label,
+      from: { x: unit.x, y: unit.y },
+      to: { cellX, cellY, centerX, centerY }
+    });
 
     if (this.isPositionValid(centerX, centerY, unit.radius)) {
       unit.x = centerX;
       unit.y = centerY;
-      console.log(`Moved unit to (${centerX}, ${centerY})`);
+      console.log('[map.js] Unit moved successfully:', {
+        unit: unit.label,
+        position: { x: centerX, y: centerY }
+      });
     } else {
-      console.error('Invalid move due to collision or out of bounds.');
+      console.error('[map.js] Invalid move:', {
+        unit: unit.label,
+        attempted: { x: centerX, y: centerY },
+        reason: 'Collision or out of bounds'
+      });
     }
   }
 
@@ -62,11 +73,19 @@ export class Map {
   detectCollision(x, y, radius, excludeUnit = null) {
     for (let obstacle of this.obstacles) {
       if (this.checkOverlap(x, y, radius, obstacle.x, obstacle.y, obstacle.radius)) {
+        console.log('[map.js] Collision detected with obstacle:', {
+          position: { x, y },
+          obstacle: { x: obstacle.x, y: obstacle.y }
+        });
         return true;
       }
     }
     for (let unit of this.units) {
       if (unit !== excludeUnit && this.checkOverlap(x, y, radius, unit.x, unit.y, unit.radius)) {
+        console.log('[map.js] Collision detected with unit:', {
+          position: { x, y },
+          collidingUnit: unit.label
+        });
         return true;
       }
     }
@@ -124,14 +143,21 @@ export class Map {
   }
 
   startUnitMove() {
+    console.log('[map.js] Starting unit move mode');
     this.showCursorLine = true;
   }
 
   endUnitMove() {
+    console.log('[map.js] Ending unit move mode');
     this.showCursorLine = false;
   }
 
   updateUnitMove(positions) {
+    // console.log('[map.js] Updating unit move preview:', {
+    //   unit: positions.unit.label,
+    //   from: { x: positions.startX, y: positions.startY },
+    //   to: { x: positions.endX, y: positions.endY }
+    // });
     this.cursorLinePositions = positions;
   }
 
@@ -154,7 +180,7 @@ export class Map {
     // Log cell coordinates when clicking in move mode
     const cellX = Math.floor(endX / this.gridSize);
     const cellY = Math.floor(endY / this.gridSize);
-    console.log(`Cursor on cell (${cellX}, ${cellY})`);
+    // console.log(`Cursor on cell (${cellX}, ${cellY})`);
   }
 
   // Utility method to draw a circle on the canvas
