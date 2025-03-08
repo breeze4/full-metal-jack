@@ -89,16 +89,21 @@ export class Map {
   // Method to render the map on the canvas
   renderMap() {
     const currentTime = performance.now();
-    this.fps = Math.round(1000 / (currentTime - this.lastFrameTime)); // Calculate FPS
-    this.lastFrameTime = currentTime; // Update last frame time
+    this.fps = Math.round(1000 / (currentTime - this.lastFrameTime));
+    this.lastFrameTime = currentTime;
 
     this.ctx.clearRect(0, 0, this.width, this.height);
 
     // Draw living units
     for (let unit of this.units.filter(u => !u.isDead())) {
-      this.drawCircle(unit.x, unit.y, unit.radius, unit.color);
+      // Draw unit with dimmed color if it has acted
+      const unitColor = unit.hasActed ? this.getDimmedColor(unit.color) : unit.color;
+      this.drawCircle(unit.x, unit.y, unit.radius, unitColor);
       this.drawHealthBar(unit);
-      this.drawText(unit.label, unit.x, unit.y); // Draw the label on top of the unit
+      this.drawText(unit.label, unit.x, unit.y);
+      if (unit.hasActed) {
+        this.drawActionIndicator(unit);
+      }
     }
 
     for (let obstacle of this.obstacles) {
@@ -168,9 +173,11 @@ export class Map {
     this.ctx.fillStyle = 'black';
     this.ctx.fillText(text, x, y + 30);
     
-    // Add health text
+    // Add health text and action status
     this.ctx.font = '8px Arial';
-    this.ctx.fillText(`${text} (${Math.round(this.units.find(u => u.label === text)?.health || 0)}hp)`, x, y - 15);
+    const unit = this.units.find(u => u.label === text);
+    const healthText = `${text} (${Math.round(unit?.health || 0)}hp)`;
+    this.ctx.fillText(healthText, x, y - 15);
   }
 
   // Utility method to draw grid on the canvas
@@ -229,5 +236,24 @@ export class Map {
     const healthWidth = (unit.health / unit.maxHealth) * barWidth;
     this.ctx.fillStyle = '#00ff00';
     this.ctx.fillRect(x, y, healthWidth, barHeight);
+  }
+
+  // New method to get dimmed color for units that have acted
+  getDimmedColor(color) {
+    // Convert hex to RGB and reduce brightness
+    const hex = color.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+    return `rgba(${r}, ${g}, ${b}, 0.5)`;
+  }
+
+  // New method to draw action indicator
+  drawActionIndicator(unit) {
+    const text = unit.actionType === 'move' ? '⟲' : '⚔️';
+    this.ctx.font = '12px Arial';
+    this.ctx.textAlign = 'center';
+    this.ctx.fillStyle = 'black';
+    this.ctx.fillText(text, unit.x, unit.y - unit.radius - 20);
   }
 }

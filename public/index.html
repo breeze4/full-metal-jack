@@ -22,6 +22,33 @@
     #left-panel div {
       margin: 5px 0;
     }
+    .turn-order-section {
+      margin-top: 20px;
+      border-top: 1px solid #555;
+      padding-top: 10px;
+    }
+    .unit-list {
+      margin-left: 10px;
+    }
+    .unit-item {
+      display: flex;
+      align-items: center;
+      margin: 5px 0;
+      opacity: 1;
+    }
+    .unit-item.acted {
+      opacity: 0.5;
+    }
+    .unit-color {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    .action-icon {
+      margin-left: 8px;
+      font-size: 12px;
+    }
   </style>
 </head>
 
@@ -31,6 +58,16 @@
     <div id="mouse-coords">Mouse: (--,--)</div>
     <div id="canvas-coords">Canvas: (--,--)</div>
     <div id="grid-coords">Grid: (--,--)</div>
+    <div class="turn-order-section">
+      <div>Turn Order</div>
+      <div id="current-phase"></div>
+      <div class="unit-list" id="player-units">
+        <div>Player Units:</div>
+      </div>
+      <div class="unit-list" id="npc-units">
+        <div>NPC Units:</div>
+      </div>
+    </div>
   </div>
   <div id="game-container">
     <button id="save-state-button">Save Game State</button>

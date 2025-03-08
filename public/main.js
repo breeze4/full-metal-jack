@@ -21,6 +21,9 @@ const fpsCounter = document.getElementById('fps-counter');
 const mouseCoords = document.getElementById('mouse-coords');
 const canvasCoords = document.getElementById('canvas-coords');
 const gridCoords = document.getElementById('grid-coords');
+const currentPhase = document.getElementById('current-phase');
+const playerUnitsList = document.getElementById('player-units');
+const npcUnitsList = document.getElementById('npc-units');
 
 // Create turn counter display
 const turnCounter = document.createElement('div');
@@ -40,6 +43,52 @@ function updateTurnCounter() {
   turnCounter.style.backgroundColor = isPlayerTurn ? '#2c8c2c' : '#333333';
   turnCounter.style.color = isPlayerTurn ? '#000000' : '#FFFFFF';
   turnCounter.textContent = `Turn: ${turn}`;
+  updateTurnOrder();
+}
+
+function updateTurnOrder() {
+  const isPlayerTurn = gameEngine.isPlayerTurn();
+  
+  // Update current phase
+  currentPhase.textContent = `Current Phase: ${isPlayerTurn ? 'Player' : 'NPC'} Turn`;
+  currentPhase.style.color = isPlayerTurn ? '#90EE90' : '#FFFFFF';
+
+  // Clear existing lists
+  while (playerUnitsList.childNodes.length > 1) {
+    playerUnitsList.removeChild(playerUnitsList.lastChild);
+  }
+  while (npcUnitsList.childNodes.length > 1) {
+    npcUnitsList.removeChild(npcUnitsList.lastChild);
+  }
+
+  // Update unit lists
+  gameEngine.map.units.forEach(unit => {
+    if (unit.isDead()) return; // Skip dead units
+
+    const unitElement = document.createElement('div');
+    unitElement.className = `unit-item${unit.hasActed ? ' acted' : ''}`;
+    
+    const colorDot = document.createElement('div');
+    colorDot.className = 'unit-color';
+    colorDot.style.backgroundColor = unit.color;
+    
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = unit.label;
+    
+    const actionSpan = document.createElement('span');
+    actionSpan.className = 'action-icon';
+    actionSpan.textContent = unit.hasActed ? (unit.actionType === 'move' ? '⟲' : '⚔️') : '•';
+    
+    unitElement.appendChild(colorDot);
+    unitElement.appendChild(nameSpan);
+    unitElement.appendChild(actionSpan);
+    
+    if (unit.isNPC) {
+      npcUnitsList.appendChild(unitElement);
+    } else {
+      playerUnitsList.appendChild(unitElement);
+    }
+  });
 }
 
 // Bind UI elements
@@ -60,7 +109,6 @@ function renderLoop() {
   const currentTime = performance.now();
   frameCount++;
 
-  // Update FPS counter every 500ms
   if (currentTime - lastFpsUpdate > FPS_UPDATE_INTERVAL) {
     const fps = Math.round((frameCount * 1000) / (currentTime - lastFpsUpdate));
     fpsCounter.textContent = `FPS: ${fps}`;
@@ -68,7 +116,8 @@ function renderLoop() {
     lastFpsUpdate = currentTime;
   }
 
-  map.renderMap(); // Re-render the map each frame
+  map.renderMap();
+  updateTurnOrder(); // Add turn order update to render loop
   requestAnimationFrame(renderLoop);
 }
 
@@ -121,7 +170,7 @@ map.canvas.addEventListener('click', (event) => {
           gameState: gameEngine.getGameState()
         };
 
-        // Check if the unit allows movement
+        // Check if the unit can still act
         if (unit.canMove(context)) {
           selectedUnit = unit;
           moveMode = true;
@@ -134,6 +183,8 @@ map.canvas.addEventListener('click', (event) => {
           };
           map.updateUnitMove(movePositions);
           map.startUnitMove();
+        } else if (unit.hasActed) {
+          console.log(`${unit.label} has already ${unit.actionType}d this turn!`);
         }
         break;
       }
@@ -147,21 +198,26 @@ map.canvas.addEventListener('click', (event) => {
       if (Math.abs(unit.x - x) <= unit.radius && Math.abs(unit.y - y) <= unit.radius) {
         // If clicked on enemy unit (different isNPC status)
         if (unit.isNPC !== selectedUnit.isNPC) {
-          // Apply damage
-          const isDead = unit.takeDamage(selectedUnit.damage);
-          console.log(`${selectedUnit.label} attacks ${unit.label} for ${selectedUnit.damage} damage! ${unit.health}hp remaining`);
-          if (isDead) {
-            console.log(`${unit.label} has been defeated!`);
+          if (selectedUnit.canAttack({ currentTurn: gameEngine.currentTurn })) {
+            // Apply damage
+            const isDead = unit.takeDamage(selectedUnit.damage);
+            console.log(`${selectedUnit.label} attacks ${unit.label} for ${selectedUnit.damage} damage! ${unit.health}hp remaining`);
+            if (isDead) {
+              console.log(`${unit.label} has been defeated!`);
+            }
+            selectedUnit.performAction('attack');
+            gameEngine.recordUnitMove(selectedUnit); // Use existing system to track turn completion
+            hitEnemy = true;
           }
-          hitEnemy = true;
           break;
         }
       }
     }
 
-    // If didn't hit an enemy, move the unit
+    // If didn't hit an enemy, try to move the unit
     if (!hitEnemy && selectedUnit) {
       map.moveUnit(selectedUnit, x, y);
+      selectedUnit.performAction('move');
       gameEngine.recordUnitMove(selectedUnit);
     }
 

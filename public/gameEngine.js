@@ -7,22 +7,37 @@ class Unit {
     this.label = label; // New field to store the label of the unit
     this.isNPC = isNPC;
     this.color = isNPC ? '#333333' : '#2c8c2c'; // Black for NPCs, Green for players
-    this.hasMoved = false; // Track if unit has moved this turn
-    this.maxHealth = 30; // Takes 3-5 hits to kill
+    this.maxHealth = 30;
     this.health = this.maxHealth;
     this.damage = Math.floor(Math.random() * 5) + 5; // Random damage between 5-10
+    this.hasActed = false; // Track if unit has performed any action this turn
+    this.actionType = null; // 'move' or 'attack' or null
   }
 
   canMove(context) {
     // Dead units can't move
     if (this.health <= 0) return false;
     
-    // Player units can only move on even turns (0, 2, 4...)
+    // Check turn ownership
     const isCorrectTurn = this.isNPC ? 
-      context.currentTurn % 2 === 1 : // NPC turns are odd
-      context.currentTurn % 2 === 0;  // Player turns are even
+      context.currentTurn % 2 === 1 : 
+      context.currentTurn % 2 === 0;
     
-    return !this.hasMoved && isCorrectTurn;
+    // Can only move if hasn't acted this turn
+    return !this.hasActed && isCorrectTurn;
+  }
+
+  canAttack(context) {
+    // Dead units can't attack
+    if (this.health <= 0) return false;
+    
+    // Check turn ownership
+    const isCorrectTurn = this.isNPC ? 
+      context.currentTurn % 2 === 1 : 
+      context.currentTurn % 2 === 0;
+    
+    // Can only attack if hasn't acted this turn
+    return !this.hasActed && isCorrectTurn;
   }
 
   takeDamage(amount) {
@@ -30,8 +45,14 @@ class Unit {
     return this.health <= 0; // Return true if unit is dead
   }
 
+  performAction(actionType) {
+    this.hasActed = true;
+    this.actionType = actionType;
+  }
+
   resetMoveState() {
-    this.hasMoved = false;
+    this.hasActed = false;
+    this.actionType = null;
   }
 
   isDead() {
@@ -82,13 +103,17 @@ export class GameEngine {
   // Reset moved units tracking at start of turn
   startTurn() {
     this.movedUnits.clear();
-    // Reset all units' move states
-    this.map.units.forEach(unit => unit.resetMoveState());
+    // Reset all units' states for the new turn
+    this.map.units.forEach(unit => {
+      unit.resetMoveState();
+      unit.hasActed = false;  // Ensure hasActed is explicitly reset
+      unit.actionType = null; // Clear the action type
+    });
   }
 
-  // Track when a unit has moved
+  // Track when a unit has moved or acted
   recordUnitMove(unit) {
-    unit.hasMoved = true; // Mark the unit as moved
+    unit.hasActed = true; // Ensure hasActed is set
     this.movedUnits.add(unit);
     this.checkEndTurnConditions();
   }
@@ -100,7 +125,7 @@ export class GameEngine {
       isPlayerTurn ? !unit.isNPC : unit.isNPC
     );
     
-    const allUnitsMoved = currentTurnUnits.every(unit => unit.hasMoved);
+    const allUnitsMoved = currentTurnUnits.every(unit => unit.hasActed); // Check hasActed instead of movedUnits
     const turnOwner = isPlayerTurn ? "player" : "NPC";
     
     if (allUnitsMoved) {
