@@ -95,11 +95,11 @@ export class Map {
     this.ctx.clearRect(0, 0, this.width, this.height);
 
     for (let unit of this.units) {
-      this.drawCircle(unit.x, unit.y, unit.radius, 'blue');
+      this.drawCircle(unit.x, unit.y, unit.radius, unit.color);
       this.drawText(unit.label, unit.x, unit.y); // Draw the label on top of the unit
     }
     for (let obstacle of this.obstacles) {
-      this.drawCircle(obstacle.x, obstacle.y, 20, 'red'); // Set radius to half of the grid size
+      this.drawCircle(obstacle.x, obstacle.y, obstacle.radius, 'red'); // Set radius to half of the grid size
     }
 
     if (this.showGrid) {

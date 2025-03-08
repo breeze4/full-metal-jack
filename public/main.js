@@ -25,7 +25,7 @@ document.body.appendChild(turnCounter);
 function updateTurnCounter() {
   const turn = gameEngine.getCurrentTurn();
   const isPlayerTurn = turn % 2 === 0;
-  turnCounter.style.backgroundColor = isPlayerTurn ? '#90EE90' : '#333333';
+  turnCounter.style.backgroundColor = isPlayerTurn ? '#2c8c2c' : '#333333';
   turnCounter.style.color = isPlayerTurn ? '#000000' : '#FFFFFF';
   turnCounter.textContent = `Turn: ${turn}`;
 }

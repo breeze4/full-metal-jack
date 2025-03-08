@@ -6,7 +6,7 @@ class Unit {
     this.radius = radius; // Defines the space occupied by the unit
     this.label = label; // New field to store the label of the unit
     this.isNPC = isNPC;
-    this.color = isNPC ? '#333333' : '#90EE90'; // Black for NPCs, Green for players
+    this.color = isNPC ? '#333333' : '#2c8c2c'; // Black for NPCs, Green for players
     this.onMove = onMove || ((context) => true); // Default to always allow movement
   }
 
@@ -117,7 +117,7 @@ export class GameEngine {
     this.map.addUnit(unit1);
 
     // Create another player unit
-    const unit2 = new Unit(150, 100, 20, 'Soldier 2', false, (context) => {
+    const unit2 = new Unit(140, 100, 20, 'Soldier 2', false, (context) => {
       return this.currentTurn % 2 === 0;
     });
     this.map.addUnit(unit2);
@@ -130,7 +130,7 @@ export class GameEngine {
     this.map.addUnit(npcUnit);
 
     // Create another NPC unit
-    const npcUnit2 = new NPCUnit(350, 300, 20, 'Enemy Soldier 2', (context) => {
+    const npcUnit2 = new NPCUnit(340, 300, 20, 'Enemy Soldier 2', (context) => {
       return this.currentTurn % 2 === 1;
     });
     this.map.addUnit(npcUnit2);
