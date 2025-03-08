@@ -118,9 +118,11 @@ map.canvas.addEventListener('click', (event) => {
     // Move the selected unit to the clicked position
     if (selectedUnit) {
       map.moveUnit(selectedUnit, x, y);
+      gameEngine.recordUnitMove(selectedUnit);
       selectedUnit = null;
       moveMode = false;
       map.endUnitMove();
+      updateTurnCounter();
     }
 
     // Log cell coordinates when clicking in move mode

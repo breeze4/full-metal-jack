@@ -47,6 +47,52 @@ export class GameEngine {
     this.gameStats = gameStats;
     this.map = map;
     this.currentTurn = 0;
+    this.movedUnits = new Set();
+    this.moveValidators = [
+      this.validateAllUnitsMovedOnce.bind(this),
+      // Add more validators here as needed
+    ];
+  }
+
+  // Track when a unit has moved
+  recordUnitMove(unit) {
+    this.movedUnits.add(unit);
+    this.checkEndTurnConditions();
+  }
+
+  // Reset moved units tracking at start of turn
+  startTurn() {
+    this.movedUnits.clear();
+  }
+
+  // Validator: Check if all player units have moved once
+  validateAllUnitsMovedOnce() {
+    const playerUnits = this.map.units.filter(unit => !unit.isNPC);
+    const allUnitsMoved = playerUnits.every(unit => this.movedUnits.has(unit));
+    
+    if (allUnitsMoved) {
+      return {
+        shouldEndTurn: true,
+        message: "All units have moved. Turn will end automatically."
+      };
+    }
+    return {
+      shouldEndTurn: false,
+      message: `${this.movedUnits.size}/${playerUnits.length} units moved`
+    };
+  }
+
+  // Run all move validators
+  checkEndTurnConditions() {
+    for (const validator of this.moveValidators) {
+      const result = validator();
+      if (result.shouldEndTurn) {
+        console.log(result.message);
+        this.endTurn();
+        return true;
+      }
+    }
+    return false;
   }
 
   initializeGame() {
@@ -74,6 +120,7 @@ export class GameEngine {
   endTurn() {
     console.log("Ending turn", this.currentTurn);
     this.currentTurn++;
+    this.startTurn();
     // Stub: Handle end of turn logic, increment turn counter, etc.
   }
 
