@@ -94,12 +94,15 @@ export class Map {
 
     this.ctx.clearRect(0, 0, this.width, this.height);
 
-    for (let unit of this.units) {
+    // Draw living units
+    for (let unit of this.units.filter(u => !u.isDead())) {
       this.drawCircle(unit.x, unit.y, unit.radius, unit.color);
+      this.drawHealthBar(unit);
       this.drawText(unit.label, unit.x, unit.y); // Draw the label on top of the unit
     }
+
     for (let obstacle of this.obstacles) {
-      this.drawCircle(obstacle.x, obstacle.y, obstacle.radius, 'red'); // Set radius to half of the grid size
+      this.drawCircle(obstacle.x, obstacle.y, obstacle.radius, 'red');
     }
 
     if (this.showGrid) {
@@ -160,9 +163,14 @@ export class Map {
 
   // Utility method to draw text on the canvas
   drawText(text, x, y) {
-    this.ctx.font = '10px Arial'; // Set font size and family
+    this.ctx.font = '10px Arial';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText(text, x, y + 30); // Draw text slightly below the unit for better visibility
+    this.ctx.fillStyle = 'black';
+    this.ctx.fillText(text, x, y + 30);
+    
+    // Add health text
+    this.ctx.font = '8px Arial';
+    this.ctx.fillText(`${text} (${Math.round(this.units.find(u => u.label === text)?.health || 0)}hp)`, x, y - 15);
   }
 
   // Utility method to draw grid on the canvas
@@ -204,5 +212,22 @@ export class Map {
   // Method to toggle the display of cell numbers
   toggleCellNumbers() {
     this.showCellNumbers = !this.showCellNumbers;
+  }
+
+  // New method to draw health bar
+  drawHealthBar(unit) {
+    const barWidth = 40;
+    const barHeight = 4;
+    const x = unit.x - barWidth / 2;
+    const y = unit.y - unit.radius - 10;
+
+    // Draw background (empty health bar)
+    this.ctx.fillStyle = '#ff0000';
+    this.ctx.fillRect(x, y, barWidth, barHeight);
+
+    // Draw current health
+    const healthWidth = (unit.health / unit.maxHealth) * barWidth;
+    this.ctx.fillStyle = '#00ff00';
+    this.ctx.fillRect(x, y, healthWidth, barHeight);
   }
 }

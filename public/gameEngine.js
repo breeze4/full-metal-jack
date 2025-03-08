@@ -8,9 +8,15 @@ class Unit {
     this.isNPC = isNPC;
     this.color = isNPC ? '#333333' : '#2c8c2c'; // Black for NPCs, Green for players
     this.hasMoved = false; // Track if unit has moved this turn
+    this.maxHealth = 30; // Takes 3-5 hits to kill
+    this.health = this.maxHealth;
+    this.damage = Math.floor(Math.random() * 5) + 5; // Random damage between 5-10
   }
 
   canMove(context) {
+    // Dead units can't move
+    if (this.health <= 0) return false;
+    
     // Player units can only move on even turns (0, 2, 4...)
     const isCorrectTurn = this.isNPC ? 
       context.currentTurn % 2 === 1 : // NPC turns are odd
@@ -19,8 +25,17 @@ class Unit {
     return !this.hasMoved && isCorrectTurn;
   }
 
+  takeDamage(amount) {
+    this.health = Math.max(0, this.health - amount);
+    return this.health <= 0; // Return true if unit is dead
+  }
+
   resetMoveState() {
     this.hasMoved = false;
+  }
+
+  isDead() {
+    return this.health <= 0;
   }
 }
 

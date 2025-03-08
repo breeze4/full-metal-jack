@@ -139,20 +139,37 @@ map.canvas.addEventListener('click', (event) => {
       }
     }
   } else {
-    // Move the selected unit to the clicked position
-    if (selectedUnit) {
-      map.moveUnit(selectedUnit, x, y);
-      gameEngine.recordUnitMove(selectedUnit);
-      selectedUnit = null;
-      moveMode = false;
-      map.endUnitMove();
-      updateTurnCounter();
+    // Check if clicked on an enemy unit during movement
+    let hitEnemy = false;
+    for (let unit of map.units) {
+      if (unit.isDead()) continue; // Skip dead units
+      
+      if (Math.abs(unit.x - x) <= unit.radius && Math.abs(unit.y - y) <= unit.radius) {
+        // If clicked on enemy unit (different isNPC status)
+        if (unit.isNPC !== selectedUnit.isNPC) {
+          // Apply damage
+          const isDead = unit.takeDamage(selectedUnit.damage);
+          console.log(`${selectedUnit.label} attacks ${unit.label} for ${selectedUnit.damage} damage! ${unit.health}hp remaining`);
+          if (isDead) {
+            console.log(`${unit.label} has been defeated!`);
+          }
+          hitEnemy = true;
+          break;
+        }
+      }
     }
 
-    // Log cell coordinates when clicking in move mode
-    const cellX = Math.floor(x / map.gridSize);
-    const cellY = Math.floor(y / map.gridSize);
-    console.log(`Clicked on cell (${cellX}, ${cellY})`);
+    // If didn't hit an enemy, move the unit
+    if (!hitEnemy && selectedUnit) {
+      map.moveUnit(selectedUnit, x, y);
+      gameEngine.recordUnitMove(selectedUnit);
+    }
+
+    // End movement mode
+    selectedUnit = null;
+    moveMode = false;
+    map.endUnitMove();
+    updateTurnCounter();
   }
 });
 
