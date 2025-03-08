@@ -148,6 +148,7 @@ function App() {
         }
 
         if (!hitEnemy && gameState.selectedUnit) {
+          console.log('[App.js]Moving unit:', gameState.selectedUnit.label, 'to:', { x, y });
           map.moveUnit(gameState.selectedUnit, x, y);
           gameState.selectedUnit.performAction('move');
           gameEngine.recordUnitMove(gameState.selectedUnit);
