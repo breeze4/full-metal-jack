@@ -10,6 +10,18 @@ const storageManager = new StorageManager();
 const map = new Map(1000, 800); // Define a map of size 1000x1000
 const gameEngine = new GameEngine(SoldierConfig, WeaponConfig, GameModeConfig, GameStats, map);
 
+// FPS tracking variables
+let lastFrameTime = performance.now();
+let frameCount = 0;
+let lastFpsUpdate = performance.now();
+const FPS_UPDATE_INTERVAL = 500; // Update FPS every 500ms
+
+// UI Elements
+const fpsCounter = document.getElementById('fps-counter');
+const mouseCoords = document.getElementById('mouse-coords');
+const canvasCoords = document.getElementById('canvas-coords');
+const gridCoords = document.getElementById('grid-coords');
+
 // Create turn counter display
 const turnCounter = document.createElement('div');
 turnCounter.id = 'turn-counter';
@@ -45,8 +57,19 @@ let moveMode = false;
 
 // Start the rendering loop
 function renderLoop() {
+  const currentTime = performance.now();
+  frameCount++;
+
+  // Update FPS counter every 500ms
+  if (currentTime - lastFpsUpdate > FPS_UPDATE_INTERVAL) {
+    const fps = Math.round((frameCount * 1000) / (currentTime - lastFpsUpdate));
+    fpsCounter.textContent = `FPS: ${fps}`;
+    frameCount = 0;
+    lastFpsUpdate = currentTime;
+  }
+
   map.renderMap(); // Re-render the map each frame
-  requestAnimationFrame(renderLoop); // Schedule the next frame
+  requestAnimationFrame(renderLoop);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -129,5 +152,27 @@ map.canvas.addEventListener('click', (event) => {
     const cellX = Math.floor(x / map.gridSize);
     const cellY = Math.floor(y / map.gridSize);
     console.log(`Clicked on cell (${cellX}, ${cellY})`);
+  }
+});
+
+// Track mouse movement across entire window
+document.addEventListener('mousemove', (event) => {
+  const x = event.clientX;
+  const y = event.clientY;
+  mouseCoords.textContent = `Mouse: (${x}, ${y})`;
+
+  // Calculate grid coordinates if mouse is over canvas
+  const rect = map.canvas.getBoundingClientRect();
+  if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+    const canvasX = Math.round(x - rect.left);
+    const canvasY = Math.round(y - rect.top);
+    canvasCoords.textContent = `Canvas: (${canvasX}, ${canvasY})`;
+    
+    const gridX = Math.floor(canvasX / map.gridSize);
+    const gridY = Math.floor(canvasY / map.gridSize);
+    gridCoords.textContent = `Grid: (${gridX}, ${gridY})`;
+  } else {
+    canvasCoords.textContent = 'Canvas: (--,--)';
+    gridCoords.textContent = 'Grid: (--,--)';
   }
 });
