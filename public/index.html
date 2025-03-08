@@ -17,66 +17,23 @@
     }
   </script>
   <style>
-    #left-panel {
-      position: fixed;
-      left: 20px;
-      top: 20px;
-      background-color: rgba(0, 0, 0, 0.7);
-      color: white;
-      padding: 15px;
-      border-radius: 5px;
-      font-family: monospace;
-      min-width: 200px;
-    }
-    #left-panel div {
-      margin: 5px 0;
-    }
-    .turn-order-section {
-      margin-top: 20px;
-      border-top: 1px solid #555;
-      padding-top: 10px;
-    }
-    .unit-list {
-      margin-left: 10px;
-    }
-    .unit-item {
-      display: flex;
-      align-items: center;
-      margin: 5px 0;
-      opacity: 1;
-    }
-    .unit-item.acted {
-      opacity: 0.5;
-    }
-    .unit-color {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin-right: 8px;
-    }
-    .action-icon {
-      margin-left: 8px;
-      font-size: 12px;
-    }
-    #turn-counter {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 10px;
-      border-radius: 5px;
-      font-family: Arial, sans-serif;
-      font-weight: bold;
-    }
+   
   </style>
 </head>
 
 <body>
-  <div id="ui-root"></div>
-  <div id="game-container">
-    <div id="game-board">
-      <canvas id="map"></canvas>
+  <header>
+    <h1>Tactical Hex Game</h1>
+  </header>
+  <main>
+    <div id="ui-root">
     </div>
-  </div>
+    <div id="game-container">
+      <div id="game-board">
+        <canvas id="map"></canvas>
+      </div>
+    </div>
+  </main>
   <script type="module" src="/components/App.js"></script>
 </body>
 

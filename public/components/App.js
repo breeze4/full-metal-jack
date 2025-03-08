@@ -163,7 +163,7 @@ function App() {
   }, [gameState.moveMode, gameState.selectedUnit]);
 
   return html`
-    <div>
+    <div id="app-root">
       <${LeftPanel}
         fps=${gameState.fps}
         mousePos=${gameState.mousePos}
