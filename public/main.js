@@ -68,17 +68,28 @@ map.canvas.addEventListener('click', (event) => {
     // Check if a unit is clicked
     for (let unit of map.units) {
       if (Math.abs(unit.x - x) <= unit.radius && Math.abs(unit.y - y) <= unit.radius) {
-        selectedUnit = unit;
-        moveMode = true;
-        const { x, y } = getCursorPosition(event);
-        const movePositions = {
-          startX: selectedUnit.x,
-          startY: selectedUnit.y,
-          endX: x,
-          endY: y
+        // Create context object with relevant information
+        const context = {
+          currentTurn: gameEngine.currentTurn,
+          x: x,
+          y: y,
+          unit: unit,
+          gameState: gameEngine.getGameState()
         };
-        map.updateUnitMove(movePositions);
-        map.startUnitMove();
+
+        // Check if the unit allows movement
+        if (unit.canMove(context)) {
+          selectedUnit = unit;
+          moveMode = true;
+          const movePositions = {
+            startX: selectedUnit.x,
+            startY: selectedUnit.y,
+            endX: x,
+            endY: y
+          };
+          map.updateUnitMove(movePositions);
+          map.startUnitMove();
+        }
         break;
       }
     }
