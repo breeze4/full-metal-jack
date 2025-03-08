@@ -7,18 +7,24 @@ const path = require('path');
 // Create an instance of an Express application
 const app = express();
 
-// Set the port number for the server to listen on
-const PORT = 3000;
+// Set correct MIME types
+app.use((req, res, next) => {
+  if (req.url.endsWith('.js')) {
+    res.setHeader('Content-Type', 'application/javascript');
+  }
+  next();
+});
 
-// Serve static files (like HTML, CSS, and JS files) from the 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve static files from the public directory
+app.use(express.static('public'));
 
-// Define the default route to serve the index.html file
-app.get('/', (req, res) => {
+// Serve index.html for all routes
+app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Start the server and listen on the specified port
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });

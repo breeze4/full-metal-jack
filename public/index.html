@@ -5,8 +5,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tactical Hex Game</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "preact": "https://unpkg.com/preact@10.19.3/dist/preact.module.js",
+        "preact/hooks": "https://unpkg.com/preact@10.19.3/hooks/dist/hooks.module.js",
+        "htm": "https://unpkg.com/htm@3.1.1/dist/htm.module.js"
+      }
+    }
+  </script>
   <style>
     #left-panel {
       position: fixed;
@@ -49,35 +58,26 @@
       margin-left: 8px;
       font-size: 12px;
     }
+    #turn-counter {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 10px;
+      border-radius: 5px;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+    }
   </style>
 </head>
 
 <body>
-  <div id="left-panel">
-    <div id="fps-counter">FPS: --</div>
-    <div id="mouse-coords">Mouse: (--,--)</div>
-    <div id="canvas-coords">Canvas: (--,--)</div>
-    <div id="grid-coords">Grid: (--,--)</div>
-    <div class="turn-order-section">
-      <div>Turn Order</div>
-      <div id="current-phase"></div>
-      <div class="unit-list" id="player-units">
-        <div>Player Units:</div>
-      </div>
-      <div class="unit-list" id="npc-units">
-        <div>NPC Units:</div>
-      </div>
-    </div>
-  </div>
+  <div id="ui-root"></div>
   <div id="game-container">
-    <button id="save-state-button">Save Game State</button>
     <div id="game-board">
       <canvas id="map"></canvas>
     </div>
-    <div id="game-info"></div>
-    <button id="end-turn-button">End Turn</button>
   </div>
-  <script type="module" src="main.js"></script>
+  <script type="module" src="/components/App.js"></script>
 </body>
 
 </html>

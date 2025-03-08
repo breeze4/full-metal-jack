@@ -1,16 +1,12 @@
 {
   "name": "full-metal-jack",
   "version": "1.0.0",
-  "description": "",
-  "main": "main.js",
+  "description": "Tactical game",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "express": "^4.21.1"
+  "dependencies": {
+    "express": "^4.18.2"
   }
 }
