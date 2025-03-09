@@ -3,8 +3,6 @@ export class Map {
   constructor(width, height) {
     this.width = width;
     this.height = height;
-    this.units = []; // List of units on the map
-    this.obstacles = []; // List of obstacles on the map
     this.canvas = document.getElementById('map');
     this.ctx = this.canvas.getContext('2d');
     this.canvas.width = width;
@@ -16,97 +14,14 @@ export class Map {
     this.fps = 0; // Initialize FPS counter
   }
 
-  // Method to add a unit to the map
-  addUnit(unit) {
-    const x = Math.round((unit.x / this.gridSize) * this.gridSize + this.gridSize / 2);
-    const y = Math.round((unit.y / this.gridSize) * this.gridSize + this.gridSize / 2);
-    if (this.isPositionValid(x, y, unit.radius)) {
-      this.units.push(unit);
-      console.log(`[map.js] Added unit at (${x}, ${y}) with radius ${unit.radius}`);
-    } else {
-      console.error('[map.js] Invalid position to add unit due to collision or out of bounds.');
-    }
-  }
-
-  // Method to add an obstacle to the map
-  addObstacle(obstacle) {
-    const x = Math.round((obstacle.x / this.gridSize) * this.gridSize + this.gridSize / 2);
-    const y = Math.round((obstacle.y / this.gridSize) * this.gridSize + this.gridSize / 2);
-    if (this.isPositionValid(x, y, obstacle.radius)) {
-      this.obstacles.push(obstacle); // Set radius to half of the grid size
-      console.log(`[map.js] Added obstacle at (${x}, ${y}) with radius ${obstacle.radius}`);
-    } else {
-      console.error('[map.js] Invalid position to add obstacle due to collision or out of bounds.');
-    }
-  }
-
-  // Method to move a unit to a new position
-  moveUnit(unit, newX, newY) {
-    const cellX = Math.floor(newX / this.gridSize);
-    const cellY = Math.floor(newY / this.gridSize);
-    const centerX = (cellX * this.gridSize) + this.gridSize / 2;
-    const centerY = (cellY * this.gridSize) + this.gridSize / 2;
-
-    console.log('[map.js] Attempting to move unit:', {
-      unit: unit.label,
-      from: { x: unit.x, y: unit.y },
-      to: { cellX, cellY, centerX, centerY }
-    });
-
-    if (this.isPositionValid(centerX, centerY, unit.radius)) {
-      unit.x = centerX;
-      unit.y = centerY;
-      console.log('[map.js] Unit moved successfully:', {
-        unit: unit.label,
-        position: { x: centerX, y: centerY }
-      });
-    } else {
-      console.error('[map.js] Invalid move:', {
-        unit: unit.label,
-        attempted: { x: centerX, y: centerY },
-        reason: 'Collision or out of bounds'
-      });
-    }
-  }
-
-  // Method to detect collisions
-  detectCollision(x, y, radius, excludeUnit = null) {
-    for (let obstacle of this.obstacles) {
-      if (this.checkOverlap(x, y, radius, obstacle.x, obstacle.y, obstacle.radius)) {
-        console.log('[map.js] Collision detected with obstacle:', {
-          position: { x, y },
-          obstacle: { x: obstacle.x, y: obstacle.y }
-        });
-        return true;
-      }
-    }
-    for (let unit of this.units) {
-      if (unit !== excludeUnit && this.checkOverlap(x, y, radius, unit.x, unit.y, unit.radius)) {
-        console.log('[map.js] Collision detected with unit:', {
-          position: { x, y },
-          collidingUnit: unit.label
-        });
-        return true;
-      }
-    }
-    return false;
-  }
-
-  // Utility method to check if a position is valid (no collisions and within bounds)
-  isPositionValid(x, y, radius, excludeUnit = null) {
-    const inBounds = x - radius >= 0 && x + radius <= this.width && y - radius >= 0 && y + radius <= this.height;
-    const noCollision = !this.detectCollision(x, y, radius, excludeUnit);
-    return inBounds && noCollision;
-  }
-
-  // Utility method to check for overlap between two circles (used for collisions)
-  checkOverlap(x1, y1, r1, x2, y2, r2) {
-    const distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-    return distance < (r1 + r2);
+  isPointWithinMap(point) {
+    const { x, y, radius } = point;
+    return x - radius >= 0 && x + radius <= this.width && y - radius >= 0 && y + radius <= this.height;
   }
 
   // Method to render the map on the canvas
-  renderMap() {
+  renderMap(gameState) {
+    const { units, obstacles } = gameState;
     const currentTime = performance.now();
     this.fps = Math.round(1000 / (currentTime - this.lastFrameTime));
     this.lastFrameTime = currentTime;
@@ -114,18 +29,18 @@ export class Map {
     this.ctx.clearRect(0, 0, this.width, this.height);
 
     // Draw living units
-    for (let unit of this.units.filter(u => !u.isDead())) {
+    for (let unit of units.filter(u => !u.isDead())) {
       // Draw unit with dimmed color if it has acted
       const unitColor = unit.hasActed ? this.getDimmedColor(unit.color) : unit.color;
       this.drawCircle(unit.x, unit.y, unit.radius, unitColor);
       this.drawHealthBar(unit);
-      this.drawText(unit.label, unit.x, unit.y);
+      this.drawUnitText(unit);
       if (unit.hasActed) {
         this.drawActionIndicator(unit);
       }
     }
 
-    for (let obstacle of this.obstacles) {
+    for (let obstacle of obstacles) {
       this.drawCircle(obstacle.x, obstacle.y, obstacle.radius, 'red');
     }
 
@@ -188,16 +103,16 @@ export class Map {
   }
 
   // Utility method to draw text on the canvas
-  drawText(text, x, y) {
+  drawUnitText(unit) {
+    const {label, x, y} = unit;
     this.ctx.font = '10px Arial';
     this.ctx.textAlign = 'center';
     this.ctx.fillStyle = 'black';
-    this.ctx.fillText(text, x, y + 30);
+    this.ctx.fillText(label, x, y + 30);
     
     // Add health text and action status
     this.ctx.font = '8px Arial';
-    const unit = this.units.find(u => u.label === text);
-    const healthText = `${text} (${Math.round(unit?.health || 0)}hp)`;
+    const healthText = `${unit.label} (${Math.round(unit?.health || 0)}hp)`;
     this.ctx.fillText(healthText, x, y - 15);
   }
 

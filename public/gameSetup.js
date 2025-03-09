@@ -11,7 +11,8 @@ gameEngine.initializeGame();
 
 // Start the rendering loop for the map
 function renderLoop() {
-  map.renderMap();
+  // might need to have the gameEngine process a tick here before rendering
+  map.renderMap(gameEngine.getGameState());
   requestAnimationFrame(renderLoop);
 }
 
