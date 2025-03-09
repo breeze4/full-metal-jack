@@ -3,8 +3,7 @@ import htm from 'htm';
 
 const html = htm.bind(h);
 
-export function TurnCounter({ turn }) {
-  const isPlayerTurn = turn % 2 === 0;
+export function TurnCounter({ turn, isPlayerTurn }) {
   
   return html`
     <div 

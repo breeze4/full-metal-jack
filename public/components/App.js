@@ -12,42 +12,13 @@ const html = htm.bind(h);
 function App() {
   const [appState, setAppState] = useState({
     turn: gameEngine.getCurrentTurn(),
-    fps: 0,
     mousePos: { x: 0, y: 0 },
     canvasPos: { x: "--", y: "--" },
     gridPos: { x: "--", y: "--" },
     selectedUnit: null,
     moveMode: false,
+    isPlayerTurn: true,
   });
-
-  useEffect(() => {
-    let frameCount = 0;
-    let lastFpsUpdate = performance.now();
-    const FPS_UPDATE_INTERVAL = 500;
-
-    function updateGameState() {
-      const currentTime = performance.now();
-      frameCount++;
-
-      if (currentTime - lastFpsUpdate > FPS_UPDATE_INTERVAL) {
-        const fps = Math.round(
-          (frameCount * 1000) / (currentTime - lastFpsUpdate)
-        );
-        frameCount = 0;
-        lastFpsUpdate = currentTime;
-
-        setAppState((prev) => ({
-          ...prev,
-          fps,
-          turn: gameEngine.getCurrentTurn(),
-        }));
-      }
-
-      requestAnimationFrame(updateGameState);
-    }
-
-    updateGameState();
-  }, []);
 
   useEffect(() => {
     function handleMouseMove(event) {
@@ -208,6 +179,10 @@ function App() {
           gameEngine.moveUnit(appState.selectedUnit, x, y);
           appState.selectedUnit.performAction("move");
           gameEngine.recordUnitMove(appState.selectedUnit);
+          setAppState((prev) => ({
+            ...prev,
+            turn: gameEngine.getCurrentTurn(),
+          }));
         }
 
         setAppState((prev) => ({
@@ -226,14 +201,17 @@ function App() {
   return html`
     <div id="app-root">
       <${LeftPanel}
-        fps=${appState.fps}
         mousePos=${appState.mousePos}
         canvasPos=${appState.canvasPos}
         gridPos=${appState.gridPos}
         units=${gameEngine.getGameState().units}
+        isPlayerTurn=${gameEngine.isPlayerTurn()}
         currentTurn=${appState.turn}
       />
-      <${TurnCounter} turn=${appState.turn} />
+      <${TurnCounter}
+        turn=${appState.turn}
+        isPlayerTurn=${gameEngine.isPlayerTurn()}
+      />
       <${GameControls}
         onSave=${() => storageManager.saveState(gameEngine.getGameState())}
         onEndTurn=${() => {

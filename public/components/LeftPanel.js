@@ -4,14 +4,12 @@ import { UnitList } from './UnitList.js';
 
 const html = htm.bind(h);
 
-export function LeftPanel({ fps, mousePos, canvasPos, gridPos, units, currentTurn }) {
-  const isPlayerTurn = currentTurn % 2 === 0;
+export function LeftPanel({  mousePos, canvasPos, gridPos, units, isPlayerTurn }) { 
   const playerUnits = units.filter(unit => !unit.isNPC && !unit.isDead());
   const npcUnits = units.filter(unit => unit.isNPC && !unit.isDead());
 
   return html`
     <div id="left-panel">
-      <div id="fps-counter">FPS: ${fps}</div>
       <div id="mouse-coords">Mouse: (${mousePos.x}, ${mousePos.y})</div>
       <div id="canvas-coords">Canvas: (${canvasPos.x}, ${canvasPos.y})</div>
       <div id="grid-coords">Grid: (${gridPos.x}, ${gridPos.y})</div>
